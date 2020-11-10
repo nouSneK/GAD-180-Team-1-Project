@@ -168,16 +168,23 @@
     <Compile Include="Assets\Scripts\LaunchPlatform.cs" />
     <Compile Include="Assets\Scripts\MoveCamera.cs" />
     <Compile Include="Assets\Scripts\MovingPlatform.cs" />
+    <Compile Include="Assets\Scripts\PlayerHealth.cs" />
+    <Compile Include="Assets\Scripts\PlayerMeleeCollision.cs" />
     <Compile Include="Assets\Scripts\PlayerMovement.cs" />
+    <Compile Include="Assets\Scripts\PlayerPlatformMovement.cs" />
+    <Compile Include="Assets\Scripts\PlayerStickToPlatform.cs" />
     <Compile Include="Assets\Scripts\PlayerTimeController.cs" />
     <Compile Include="Assets\Scripts\PlayerWeaponController.cs" />
     <Compile Include="Assets\Scripts\Projectile.cs" />
     <Compile Include="Assets\Scripts\RobotAI.cs" />
     <Compile Include="Assets\Scripts\RobotCollisionBox.cs" />
+    <Compile Include="Assets\Scripts\RobotMeleeCollisionBox.cs" />
+    <Compile Include="Assets\Scripts\SpawnEnemies.cs" />
     <Compile Include="Assets\Scripts\SpawnObject.cs" />
     <Compile Include="Assets\Scripts\TimeHand.cs" />
     <Compile Include="Assets\Scripts\TimeInterractableAnimation.cs" />
     <Compile Include="Assets\Scripts\TimeOrbProjectile.cs" />
+    <Compile Include="Assets\Scripts\VentOpening.cs" />
     <Compile Include="Assets\Scripts\Weapon.cs" />
     <None Include="Assets\AssetStore\Standard Assets\Prototyping\Shaders\WorldCoordDiffuse.shader" />
     <None Include="Assets\AssetStore\Standard Assets\Effects\Projectors\Shaders\ProjectorLight.shader" />
@@ -750,37 +757,37 @@
       <HintPath>C:/Program Files/Unity/Hub/Editor/2019.4.11f1/Editor/Data/MonoBleedingEdge/lib/mono/unityscript/Boo.Lang.dll</HintPath>
     </Reference>
     <Reference Include="Unity.Timeline.Editor">
-      <HintPath>F:/Connor Stuff/SAE/Game Design/GAD180/GAD180 Trobleshooter/Library/ScriptAssemblies/Unity.Timeline.Editor.dll</HintPath>
+      <HintPath>C:/Users/user/Documents/GitHub/GAD-180-Team-1-Project/GAD180 Trobleshooter/Library/ScriptAssemblies/Unity.Timeline.Editor.dll</HintPath>
     </Reference>
     <Reference Include="Unity.VSCode.Editor">
-      <HintPath>F:/Connor Stuff/SAE/Game Design/GAD180/GAD180 Trobleshooter/Library/ScriptAssemblies/Unity.VSCode.Editor.dll</HintPath>
+      <HintPath>C:/Users/user/Documents/GitHub/GAD-180-Team-1-Project/GAD180 Trobleshooter/Library/ScriptAssemblies/Unity.VSCode.Editor.dll</HintPath>
     </Reference>
     <Reference Include="Unity.TextMeshPro.Editor">
-      <HintPath>F:/Connor Stuff/SAE/Game Design/GAD180/GAD180 Trobleshooter/Library/ScriptAssemblies/Unity.TextMeshPro.Editor.dll</HintPath>
+      <HintPath>C:/Users/user/Documents/GitHub/GAD-180-Team-1-Project/GAD180 Trobleshooter/Library/ScriptAssemblies/Unity.TextMeshPro.Editor.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine.UI">
-      <HintPath>F:/Connor Stuff/SAE/Game Design/GAD180/GAD180 Trobleshooter/Library/ScriptAssemblies/UnityEngine.UI.dll</HintPath>
+      <HintPath>C:/Users/user/Documents/GitHub/GAD-180-Team-1-Project/GAD180 Trobleshooter/Library/ScriptAssemblies/UnityEngine.UI.dll</HintPath>
     </Reference>
     <Reference Include="Unity.Timeline">
-      <HintPath>F:/Connor Stuff/SAE/Game Design/GAD180/GAD180 Trobleshooter/Library/ScriptAssemblies/Unity.Timeline.dll</HintPath>
+      <HintPath>C:/Users/user/Documents/GitHub/GAD-180-Team-1-Project/GAD180 Trobleshooter/Library/ScriptAssemblies/Unity.Timeline.dll</HintPath>
     </Reference>
     <Reference Include="Unity.CollabProxy.Editor">
-      <HintPath>F:/Connor Stuff/SAE/Game Design/GAD180/GAD180 Trobleshooter/Library/ScriptAssemblies/Unity.CollabProxy.Editor.dll</HintPath>
+      <HintPath>C:/Users/user/Documents/GitHub/GAD-180-Team-1-Project/GAD180 Trobleshooter/Library/ScriptAssemblies/Unity.CollabProxy.Editor.dll</HintPath>
     </Reference>
     <Reference Include="Unity.Postprocessing.Editor">
-      <HintPath>F:/Connor Stuff/SAE/Game Design/GAD180/GAD180 Trobleshooter/Library/ScriptAssemblies/Unity.Postprocessing.Editor.dll</HintPath>
+      <HintPath>C:/Users/user/Documents/GitHub/GAD-180-Team-1-Project/GAD180 Trobleshooter/Library/ScriptAssemblies/Unity.Postprocessing.Editor.dll</HintPath>
     </Reference>
     <Reference Include="Unity.Rider.Editor">
-      <HintPath>F:/Connor Stuff/SAE/Game Design/GAD180/GAD180 Trobleshooter/Library/ScriptAssemblies/Unity.Rider.Editor.dll</HintPath>
+      <HintPath>C:/Users/user/Documents/GitHub/GAD-180-Team-1-Project/GAD180 Trobleshooter/Library/ScriptAssemblies/Unity.Rider.Editor.dll</HintPath>
     </Reference>
     <Reference Include="Unity.Postprocessing.Runtime">
-      <HintPath>F:/Connor Stuff/SAE/Game Design/GAD180/GAD180 Trobleshooter/Library/ScriptAssemblies/Unity.Postprocessing.Runtime.dll</HintPath>
+      <HintPath>C:/Users/user/Documents/GitHub/GAD-180-Team-1-Project/GAD180 Trobleshooter/Library/ScriptAssemblies/Unity.Postprocessing.Runtime.dll</HintPath>
     </Reference>
     <Reference Include="Unity.TextMeshPro">
-      <HintPath>F:/Connor Stuff/SAE/Game Design/GAD180/GAD180 Trobleshooter/Library/ScriptAssemblies/Unity.TextMeshPro.dll</HintPath>
+      <HintPath>C:/Users/user/Documents/GitHub/GAD-180-Team-1-Project/GAD180 Trobleshooter/Library/ScriptAssemblies/Unity.TextMeshPro.dll</HintPath>
     </Reference>
     <Reference Include="UnityEditor.UI">
-      <HintPath>F:/Connor Stuff/SAE/Game Design/GAD180/GAD180 Trobleshooter/Library/ScriptAssemblies/UnityEditor.UI.dll</HintPath>
+      <HintPath>C:/Users/user/Documents/GitHub/GAD-180-Team-1-Project/GAD180 Trobleshooter/Library/ScriptAssemblies/UnityEditor.UI.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup></ItemGroup>

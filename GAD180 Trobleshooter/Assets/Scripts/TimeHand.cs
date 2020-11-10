@@ -7,12 +7,16 @@ public class TimeHand : MonoBehaviour
     public int defultOrb = 0;
     public int selectedOrb = 0;
     public int numberOfOrbs = 2;
+    public int numberOfMeleeHits = 1;
+    public int meleeDamage = 1;
 
     public float timeMultiplier = 2;
     public float maxOrbRange = 100;
+    public float meleeAttackTime = 1;
 
     public GameObject handOrb;
     public GameObject projectileOrb;
+    public GameObject meleeFistsCollision;
     public float projectileOrbTime = 0.5f;
 
     public Transform orbLaunchPoint;
@@ -20,7 +24,13 @@ public class TimeHand : MonoBehaviour
     private GameObject playerCam;
     private GameObject player;
 
+    private Animator animator;
+
     public Color[] orbColors;
+
+    public string meleeAnimation;
+
+    private bool canMeleeAttack = true;
 
     private RaycastHit hit;
 
@@ -33,6 +43,8 @@ public class TimeHand : MonoBehaviour
         playerCam = GameObject.FindGameObjectWithTag("MainCamera");
 
         player = GameObject.FindGameObjectWithTag("Player");
+
+        animator = gameObject.GetComponent<Animator>();
     }
 
     void Update()
@@ -42,9 +54,13 @@ public class TimeHand : MonoBehaviour
             SelectOrb();
         }
 
-        if (Input.GetMouseButtonDown(0))
+        if (Input.GetMouseButtonDown(1))
         {
             LaunchOrb();
+        }
+        else if (Input.GetMouseButtonDown(0))
+        {
+            MeleeAttack();
         }
 
         Debug.DrawLine(playerCam.transform.position, hit.point, Color.green);
@@ -77,6 +93,25 @@ public class TimeHand : MonoBehaviour
                 }
             }
         }
+    }
+
+    void MeleeAttack()
+    {
+        if (canMeleeAttack)
+        {
+            canMeleeAttack = false;
+
+            animator.Play(meleeAnimation);
+
+            Invoke("MeleeCoolDown", meleeAttackTime);
+        }
+    }
+
+    void MeleeCoolDown()
+    {
+        canMeleeAttack = true;
+
+        meleeFistsCollision.GetComponent<PlayerMeleeCollision>().currentNumberOfMeleeHits = 0;
     }
 
     private void CreateOrb()

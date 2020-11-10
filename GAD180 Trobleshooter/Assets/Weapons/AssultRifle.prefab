@@ -129,17 +129,20 @@ MonoBehaviour:
   enemyControlled: 0
   mouseHold: 1
   bulletsPerShot: 1
-  weaponType: 0
+  weaponType: 1
   spread: 0
   clipSize: 20
   maxClipSize: 60
   startingAmmo: 60
   ammoCost: 1
+  meleeDamage: 1
+  enemiesPerMeleeAttack: 3
   fireForce: 20
   fireRate: 0.1
   reloadTime: 2
   bulletDestroyTime: 10
   meleeTime: 0.1
+  attackAnimation: 
   projectile: {fileID: 453169389759405866, guid: ff5b0f5a721530e45b0114817dd14e67,
     type: 3}
   shootPoint: {fileID: 0}
@@ -261,10 +264,10 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8762943750110453288}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: 0.7071068, y: 0, z: 0, w: 0.7071068}
   m_LocalPosition: {x: 0, y: -0.02546, z: 0.00036}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 3943137766464187458}
   m_RootOrder: 1
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: 90, y: 0, z: 0}

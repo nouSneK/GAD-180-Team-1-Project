@@ -8,6 +8,8 @@ public class RobotAI : MonoBehaviour
     public GameObject[] limbs;
 
     public int health = 1;
+    public int assultRifleBurstNumber = 4;
+    public int currentAssultRifleBurstNumber;
     private int weaponType = 0;
 
     public float turningSpeed = 3;
@@ -23,6 +25,7 @@ public class RobotAI : MonoBehaviour
     public bool isTriggered;
     private bool meleeWeapon;
     private bool meleeAttack;
+    private bool hasSightOfTarget;
 
     public string runningAnimation;
     public string aimAnimation;
@@ -64,9 +67,7 @@ public class RobotAI : MonoBehaviour
 
             if (Input.GetKeyDown(KeyCode.T))
             {
-                target = GameObject.Find("Player");
-
-                Trigger();
+                PlayerTrigger();
             }
 
             if (Input.GetKeyDown(KeyCode.J))
@@ -79,11 +80,33 @@ public class RobotAI : MonoBehaviour
                 animator.Play(runningAnimation);
             }
 
-            if (isTriggered && attackTimer > 0)
+            if (isTriggered && weapon && weapon.gameObject.GetComponent<Weapon>().projectile && attackTimer > 0)
+            {
+                RaycastHit hit;
+                QueryTriggerInteraction qt = QueryTriggerInteraction.Ignore;
+
+                if (Physics.SphereCast(weapon.GetComponent<Weapon>().shootPoint.transform.position, 0.1f, weapon.GetComponent<Weapon>().shootPoint.transform.forward, out hit, 1000))
+                {
+                    Debug.DrawLine(weapon.GetComponent<Weapon>().shootPoint.transform.position, hit.point);
+
+                    if (hit.collider.gameObject == target)
+                    {
+                        attackTimer -= 1 * Time.deltaTime;
+                    }
+                }
+            }
+            else if (isTriggered && attackTimer > 0)
             {
                 attackTimer -= 1 * Time.deltaTime;
             }
         }
+    }
+
+    public void PlayerTrigger()
+    {
+        target = GameObject.Find("Player");
+
+        Invoke("Trigger", 0.5f);
     }
 
     public void Trigger()
@@ -123,11 +146,13 @@ public class RobotAI : MonoBehaviour
     {
         if (isTriggered && attackTimer < 0)
         {
-            if (weapon)
+            if (weapon && weapon.gameObject.GetComponent<Weapon>().projectile)
             {
                 if(weaponType == 1)
                 {
-                    //For assult rifles
+                    attackTimer = attackRate;
+
+                    AssultRifleFire();
                 }
                 else
                 {
@@ -160,6 +185,25 @@ public class RobotAI : MonoBehaviour
 
                     meleeAttack = true;
                 }
+            }
+        }
+    }
+
+    void AssultRifleFire()
+    {
+        if (currentAssultRifleBurstNumber < assultRifleBurstNumber)
+        {
+            currentAssultRifleBurstNumber++;
+
+            weapon.GetComponent<Weapon>().FireWeapon();
+
+            if(currentAssultRifleBurstNumber >= assultRifleBurstNumber)
+            {
+                currentAssultRifleBurstNumber = 0;
+            }
+            else
+            {
+                Invoke("AssultRifleFire", 0.1f);
             }
         }
     }
@@ -212,11 +256,16 @@ public class RobotAI : MonoBehaviour
                 Vector3 targetPos = new Vector3(target.transform.position.x, transform.position.y, target.transform.position.z);
 
                 transform.LookAt(targetPos);
+
+                if(weapon && weapon.GetComponent<Weapon>().shootPoint)
+                {
+                    weapon.GetComponent<Weapon>().shootPoint.transform.LookAt(target.transform.position);
+                }
             }
         }
     }
 
-    void SetStartingWeapon()
+    public void SetStartingWeapon()
     {
         if (startingWeapon)
         {
@@ -230,6 +279,8 @@ public class RobotAI : MonoBehaviour
             weapon.GetComponent<Weapon>().WeaponMode();
 
             weapon.transform.parent = weaponHand.transform;
+
+            Debug.Log(this.name + " weapon set " + weapon.gameObject.name);
         }
 
         attackTimer = attackRate;
@@ -328,9 +379,13 @@ public class RobotAI : MonoBehaviour
     void DropWeapon()
     {
         weapon.GetComponent<Weapon>().enemyControlled = false;
-        weapon.GetComponent<Weapon>().ammoCost = 1;
         weapon.GetComponent<Weapon>().shootPoint = null;
         weapon.GetComponent<Weapon>().WeaponModeOff();
+
+        if (weapon.GetComponent<Weapon>().projectile)
+        {
+            weapon.GetComponent<Weapon>().ammoCost = 1;
+        }
 
         weapon.transform.parent = null;
 

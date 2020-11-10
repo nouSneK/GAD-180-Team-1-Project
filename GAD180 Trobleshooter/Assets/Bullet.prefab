@@ -231,6 +231,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   bulletSpeed: 10
+  bulletForce: 500
   time: 1
   bulletDamage: 1
   pierceCount: 1

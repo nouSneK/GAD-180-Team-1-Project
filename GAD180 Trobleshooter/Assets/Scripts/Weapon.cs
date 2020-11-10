@@ -157,16 +157,24 @@ public class Weapon : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        if (other.GetComponent<RobotCollisionBox>() && meleeAttack)
+        if (meleeAttack)
         {
-            other.GetComponent<RobotCollisionBox>().robotParent.GetComponent<RobotAI>().TakeDamage(meleeDamage);
-            other.GetComponent<RobotCollisionBox>().BreakOff();
-
-            currentEnemiesPerMelleAttack++;
-
-            if(currentEnemiesPerMelleAttack >= enemiesPerMeleeAttack)
+            if (other.GetComponent<RobotCollisionBox>())
             {
-                MeleeReset();
+                other.GetComponent<RobotCollisionBox>().robotParent.GetComponent<RobotAI>().TakeDamage(meleeDamage);
+                other.GetComponent<RobotCollisionBox>().BreakOff();
+
+                currentEnemiesPerMelleAttack++;
+
+                if (currentEnemiesPerMelleAttack >= enemiesPerMeleeAttack)
+                {
+                    MeleeReset();
+                }
+            }
+            else if (other.GetComponent<VentOpening>())
+            {
+                other.GetComponent<VentOpening>().Open();
+                other.GetComponent<Rigidbody>().AddForce(Vector3.forward * fireForce);
             }
         }
     }
