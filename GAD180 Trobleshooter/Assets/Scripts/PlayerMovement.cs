@@ -22,6 +22,7 @@ public class PlayerMovement : MonoBehaviour {
     public float maxSpeed = 20;
     public bool grounded;
     public LayerMask whatIsGround;
+    private float saveMaxSpeed;
     
     public float counterMovement = 0.175f;
     private float threshold = 0.01f;
@@ -32,6 +33,7 @@ public class PlayerMovement : MonoBehaviour {
     private Vector3 playerScale;
     public float slideForce = 400;
     public float slideCounterMovement = 0.2f;
+    private bool isCrouching;
 
     //Jumping
     private bool readyToJump = true;
@@ -54,9 +56,11 @@ public class PlayerMovement : MonoBehaviour {
         playerScale =  transform.localScale;
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
+
+        saveMaxSpeed = maxSpeed;
     }
 
-    
+
     private void FixedUpdate() {
         Movement();
     }
@@ -79,7 +83,17 @@ public class PlayerMovement : MonoBehaviour {
         if (Input.GetKeyDown(KeyCode.LeftControl))
             StartCrouch();
         if (Input.GetKeyUp(KeyCode.LeftControl))
-            StopCrouch();
+        {
+            isCrouching = true;
+        }
+        else if (isCrouching)
+        {
+            RaycastHit hit;
+            if (!Physics.SphereCast(transform.position, 0.6f, transform.up, out hit, 1, 1 << 11))
+            {
+                StopCrouch();
+            }
+        }
     }
 
     private void StartCrouch() {
@@ -90,11 +104,21 @@ public class PlayerMovement : MonoBehaviour {
                 rb.AddForce(orientation.transform.forward * slideForce);
             }
         }
+
+        maxSpeed = saveMaxSpeed;
+        maxSpeed = maxSpeed / 3;
     }
 
     private void StopCrouch() {
-        transform.localScale = playerScale;
-        transform.position = new Vector3(transform.position.x, transform.position.y + 0.5f, transform.position.z);
+        RaycastHit hit;
+        if (!Physics.SphereCast(transform.position, 0.5f, transform.up, out hit, 1, 1 << 11))
+        {
+            transform.localScale = playerScale;
+            transform.position = new Vector3(transform.position.x, transform.position.y + 0.5f, transform.position.z);
+            isCrouching = false;
+
+            maxSpeed = saveMaxSpeed;
+        }
     }
 
     private void Movement() {
@@ -107,9 +131,23 @@ public class PlayerMovement : MonoBehaviour {
 
         //Counteract sliding and sloppy movement
         CounterMovement(x, y, mag);
-        
+
         //If holding jump && ready to jump, then jump
-        if (readyToJump && jumping) Jump();
+        if (readyToJump && jumping)
+        {
+            if (isCrouching)
+            {
+                RaycastHit hit;
+                if (!Physics.SphereCast(transform.position, 0.5f, transform.up, out hit, 1, 1 << 11))
+                {
+                    Jump();
+                }
+            }
+            else
+            {
+                Jump();
+            }
+        }
 
         //Set max speed
         float maxSpeed = this.maxSpeed;

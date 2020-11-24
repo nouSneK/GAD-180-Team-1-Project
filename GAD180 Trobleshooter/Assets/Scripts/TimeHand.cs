@@ -91,6 +91,10 @@ public class TimeHand : MonoBehaviour
 
                     CreateOrb();
                 }
+                else if (hit.collider.GetComponent<LaunchPlatform>())
+                {
+                    hit.collider.GetComponent<LaunchPlatform>().ChangeLaunchForce(selectedOrb);
+                }
             }
         }
     }

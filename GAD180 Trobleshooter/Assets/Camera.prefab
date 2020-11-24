@@ -45,6 +45,7 @@ GameObject:
   - component: {fileID: 5912003463726707442}
   - component: {fileID: 5912003463726707452}
   - component: {fileID: 5912003463726707443}
+  - component: {fileID: 1138844798}
   m_Layer: 12
   m_Name: Main Camera
   m_TagString: MainCamera
@@ -147,6 +148,7 @@ MonoBehaviour:
   pickUpRange: 5
   weaponDropForce: 10
   weaponThrowForce: 1000
+  weaponThrowTorque: 1000
   weaponpickUpTime: 0.5
   startingWeapon: {fileID: 0}
   hands: {fileID: 4183062025723758924, guid: 7af81568373135f40a4a989c587361b7, type: 3}
@@ -230,6 +232,25 @@ MonoBehaviour:
   blendDistance: 0
   weight: 1
   priority: 0
+--- !u!95 &1138844798
+Animator:
+  serializedVersion: 3
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5912003463726707445}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: 757380ab415a45649bdaad2b879cd32b, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorControllerStateOnDisable: 0
 --- !u!1 &5912003464007214884
 GameObject:
   m_ObjectHideFlags: 0

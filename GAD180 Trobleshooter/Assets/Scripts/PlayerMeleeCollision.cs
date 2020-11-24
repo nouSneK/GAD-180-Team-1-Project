@@ -20,5 +20,10 @@ public class PlayerMeleeCollision : MonoBehaviour
                 currentNumberOfMeleeHits++;
             }
         }
+
+        if (other.gameObject.GetComponent<VentOpening>())
+        {
+            other.gameObject.GetComponent<VentOpening>().Open(gameObject);
+        }
     }
 }

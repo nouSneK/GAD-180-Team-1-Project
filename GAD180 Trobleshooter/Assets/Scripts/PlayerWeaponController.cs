@@ -8,10 +8,12 @@ public class PlayerWeaponController : MonoBehaviour
     public int maxNumberOfWeapons = 2;
     public int numberOfWeapons = 1;
     private int selectedWeapon;
+    private int rayLayerMask = 1 << 14;
 
     public float pickUpRange = 5f;
     public float weaponDropForce = 10;
     public float weaponThrowForce = 30;
+    public float weaponThrowTorque = 200;
     public float weaponpickUpTime = 1.5f;
 
     public GameObject startingWeapon;
@@ -44,10 +46,8 @@ public class PlayerWeaponController : MonoBehaviour
             SwitchWeapon(false);
         }
 
-        int layerMask = ~14;
-        Physics.SphereCast(transform.position, 1, transform.forward, out hit, pickUpRange, layerMask);
+        Physics.SphereCast(transform.position, 1, transform.forward, out hit, pickUpRange, rayLayerMask);
         Debug.DrawLine(transform.position, hit.point);
-
         
         if (hit.collider != null && hit.collider.GetComponent<Weapon>() && Input.GetKeyDown(KeyCode.E))
         {
@@ -136,6 +136,33 @@ public class PlayerWeaponController : MonoBehaviour
 
     private void PickUpWeapon(GameObject weapon)
     {
+        foreach (GameObject w in weapons)
+        {
+            if(w.GetComponent<Weapon>() && w.GetComponent<Weapon>().weaponID == weapon.GetComponent<Weapon>().weaponID && weapon.GetComponent<Weapon>().projectile)
+            {
+                while (weapon.GetComponent<Weapon>().ammoInClip > 0 && w.GetComponent<Weapon>().ammoOutClip < w.GetComponent<Weapon>().maxClipSize)
+                {
+                    w.GetComponent<Weapon>().ammoOutClip++;
+                    weapon.GetComponent<Weapon>().ammoInClip--;
+                }
+
+                if (weapon.GetComponent<Weapon>().ammoOutClip > 0 && w.GetComponent<Weapon>().ammoOutClip < w.GetComponent<Weapon>().maxClipSize)
+                {
+                    w.GetComponent<Weapon>().ammoOutClip++;
+                    weapon.GetComponent<Weapon>().ammoOutClip--;
+                }
+
+                if (weapon.GetComponent<Weapon>().ammoOutClip == 0 && weapon.GetComponent<Weapon>().ammoInClip == 0)
+                {
+                    weapon.SetActive(false);
+                }
+
+                w.GetComponent<Weapon>().UpdateAmmoCounter();
+
+                return;
+            }
+        }
+
         Debug.Log("picked up " + weapon.name);
 
         weapon.transform.position = weaponPosition.position;
@@ -192,7 +219,20 @@ public class PlayerWeaponController : MonoBehaviour
 
         if (weapon.GetComponent<Weapon>())
         {
-            weapon.GetComponent<Weapon>().Drop(-weaponPosition.up, weaponThrowForce);
+            RaycastHit rayHit;
+            Physics.SphereCast(transform.position, 0.1f, transform.forward, out rayHit);
+            Debug.DrawLine(transform.position, rayHit.point);
+
+            if (weapon.GetComponent<Weapon>().weaponType != 2)
+            {
+                //weapon.GetComponent<Weapon>().Drop(-weaponPosition.up, weaponThrowForce);
+                weapon.GetComponent<Weapon>().ThrowDirection(rayHit.point, weaponThrowForce, weaponThrowTorque);
+            }
+            else
+            {
+                weapon.GetComponent<Weapon>().ThrowDirection(rayHit.point, weaponThrowForce, weaponThrowTorque);
+            }
+            weapon.GetComponent<Weapon>().weaponThrown = true;
 
             weapons.Remove(weapon);
             weapon.transform.parent = null;

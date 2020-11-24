@@ -4,7 +4,9 @@ using UnityEngine;
 
 public class LaunchPlatform : MonoBehaviour
 {
-    public float launchForce = 500;
+    public float normalLaunchForce = 500;
+    public float speedUpLaunchForce = 500;
+    public float slowDownLaunchForce = 500;
     public float coolDown = 1;
     private float currentLaunchForce;
 
@@ -12,7 +14,7 @@ public class LaunchPlatform : MonoBehaviour
 
     void Start()
     {
-        currentLaunchForce = launchForce;
+        currentLaunchForce = normalLaunchForce;
     }
 
     void Update()
@@ -31,6 +33,18 @@ public class LaunchPlatform : MonoBehaviour
             canLaunch = false;
 
             Invoke("CoolDown", coolDown);
+        }
+    }
+
+    public void ChangeLaunchForce(int orbType)
+    {
+        if(orbType == 0)
+        {
+            currentLaunchForce = speedUpLaunchForce;
+        }
+        else if(orbType == 1)
+        {
+            currentLaunchForce = slowDownLaunchForce;
         }
     }
 

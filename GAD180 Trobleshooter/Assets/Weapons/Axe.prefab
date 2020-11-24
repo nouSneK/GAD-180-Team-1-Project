@@ -95,12 +95,12 @@ Rigidbody:
   serializedVersion: 2
   m_Mass: 1
   m_Drag: 0
-  m_AngularDrag: 0.05
+  m_AngularDrag: 0
   m_UseGravity: 1
   m_IsKinematic: 0
   m_Interpolate: 0
   m_Constraints: 0
-  m_CollisionDetection: 0
+  m_CollisionDetection: 1
 --- !u!65 &5091692135706300712
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -128,9 +128,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   weaponMode: 0
   enemyControlled: 0
+  weaponThrown: 0
   mouseHold: 0
   bulletsPerShot: 1
-  weaponType: 0
+  weaponType: 2
+  weaponID: 4
   spread: 10
   clipSize: 10
   maxClipSize: 30
@@ -138,11 +140,14 @@ MonoBehaviour:
   ammoCost: 0
   meleeDamage: 1
   enemiesPerMeleeAttack: 50
+  ammoOutClip: 0
+  ammoInClip: 0
   fireForce: 20
+  playerFireForceMultiplier: 2
   fireRate: 1
   reloadTime: 2
   bulletDestroyTime: 10
-  meleeTime: 1
+  meleeTime: 0.3
   attackAnimation: AxeSwing
   projectile: {fileID: 0}
   shootPoint: {fileID: 0}

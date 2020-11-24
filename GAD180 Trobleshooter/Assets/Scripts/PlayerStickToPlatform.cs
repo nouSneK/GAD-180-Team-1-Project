@@ -4,6 +4,8 @@ using UnityEngine;
 
 public class PlayerStickToPlatform : MonoBehaviour
 {
+    public bool canStick = true;
+
     private GameObject player;
 
     private void Start()
@@ -13,7 +15,7 @@ public class PlayerStickToPlatform : MonoBehaviour
 
     private void OnCollisionEnter(Collision collision)
     {
-        if(collision.gameObject == player)
+        if(collision.gameObject == player && canStick)
         {
             player.transform.parent = transform;
 

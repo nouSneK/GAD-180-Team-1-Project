@@ -12,14 +12,24 @@ public class TimeOrbProjectile : MonoBehaviour
 
     private Color color;
 
+    private Rigidbody rb;
+
     void Start()
     {
+        if (gameObject.GetComponent<Rigidbody>())
+        {
+            rb = gameObject.GetComponent<Rigidbody>();
+        }
     }
 
     void Update()
     {
+        /*
         transform.LookAt(destination);
         transform.Translate(destination * speed * Time.deltaTime);
+        */
+
+        Vector3.Lerp(transform.position, destination, speed * 10000);
 
         if(Vector3.Distance(transform.position, destination) < 1)
         {
@@ -38,7 +48,8 @@ public class TimeOrbProjectile : MonoBehaviour
         destination = d;
         color = c;
 
-        Debug.Log(speed);
+        Debug.Log("Orb Speed: " + speed);
+        Debug.Log("Orb Destination: " + destination);
 
         gameObject.GetComponent<MeshRenderer>().material.color = c;
         gameObject.GetComponent<TrailRenderer>().startColor = c;

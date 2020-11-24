@@ -99,7 +99,7 @@ Rigidbody:
   m_IsKinematic: 0
   m_Interpolate: 0
   m_Constraints: 0
-  m_CollisionDetection: 0
+  m_CollisionDetection: 1
 --- !u!65 &3545018543007522321
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -127,17 +127,22 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   weaponMode: 0
   enemyControlled: 0
+  weaponThrown: 0
   mouseHold: 1
   bulletsPerShot: 1
-  weaponType: 1
+  weaponType: 2
+  weaponID: 0
   spread: 0
   clipSize: 20
   maxClipSize: 60
-  startingAmmo: 60
+  startingAmmo: 20
   ammoCost: 1
   meleeDamage: 1
   enemiesPerMeleeAttack: 3
+  ammoOutClip: 0
+  ammoInClip: 0
   fireForce: 20
+  playerFireForceMultiplier: 2
   fireRate: 0.1
   reloadTime: 2
   bulletDestroyTime: 10

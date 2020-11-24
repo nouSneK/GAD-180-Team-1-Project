@@ -1,6 +1,5 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
-using UnityEditor.Android;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -10,10 +9,12 @@ public class Weapon : MonoBehaviour
     public bool enemyControlled = false;
     private bool canShoot = true;
     private bool meleeAttack;
+    public bool weaponThrown;
     public bool mouseHold;
 
     public int bulletsPerShot = 1;
     public int weaponType = 0; //(For Enemy AI) Type 0 = Pistol    Type 1 = AssultRifle/Burst
+    public int weaponID = 0;
     public float spread = 0;
     private List<Quaternion> bullets;
 
@@ -24,20 +25,23 @@ public class Weapon : MonoBehaviour
     public int meleeDamage = 1;
     public int enemiesPerMeleeAttack = 3;
     private int currentEnemiesPerMelleAttack;
-    private int ammoOutClip;
-    private int ammoInClip;
+    public int ammoOutClip;
+    public int ammoInClip;
 
-    public float fireForce = 1000;
+    public float fireForce = 20;
+    public float playerFireForceMultiplier = 2;
     public float fireRate = 0.1f;
     public float reloadTime = 1;
     public float bulletDestroyTime = 10f;
     public float meleeTime = 0.1f;
+    private float throwBackForce = 500;
 
     public string attackAnimation;
 
     public GameObject projectile;
     public GameObject shootPoint;
     public GameObject muzzleFlashPoint;
+    private GameObject player;
 
     private Rigidbody rb;
 
@@ -53,6 +57,8 @@ public class Weapon : MonoBehaviour
         {
             bullets.Add(Quaternion.Euler(Vector3.zero));
         }
+
+        player = GameObject.Find("Player");
     }
 
     void Start()
@@ -105,6 +111,8 @@ public class Weapon : MonoBehaviour
         else if (!weaponMode && meleeAttack && rb.velocity.magnitude < 15)
         {
             meleeAttack = false;
+
+            weaponThrown = false;
         }
     }
 
@@ -119,8 +127,21 @@ public class Weapon : MonoBehaviour
             {
                 GameObject bullet = Instantiate(projectile, shootPoint.transform.position, shootPoint.transform.rotation);
                 //bullet.GetComponent<Rigidbody>().AddForce(shootPoint.transform.forward * fireForce);
-                bullet.GetComponent<Projectile>().bulletSpeed = fireForce;
+                if (!enemyControlled)
+                {
+                    bullet.GetComponent<Projectile>().bulletSpeed = fireForce * playerFireForceMultiplier;
+                }
+                else
+                {
+                    bullet.GetComponent<Projectile>().bulletSpeed = fireForce;
+                }
+
                 bullet.transform.rotation = Quaternion.RotateTowards(shootPoint.transform.rotation, bullets[i], spread);
+
+                if (enemyControlled)
+                {
+                    bullet.layer = 17;
+                }
 
                 Destroy(bullet, bulletDestroyTime);
             }
@@ -170,10 +191,23 @@ public class Weapon : MonoBehaviour
                 {
                     MeleeReset();
                 }
+
+                if (!weaponMode && weaponThrown)
+                {
+                    transform.LookAt(player.transform.position);
+
+                    Vector3.Slerp(transform.position, player.transform.position, throwBackForce);
+
+                    float mag = rb.velocity.magnitude;
+                    rb.AddForce(transform.forward * (mag + throwBackForce));
+                    rb.AddForce(transform.up * (throwBackForce / 8));
+
+                    Debug.Log(gameObject.name + " throwback " + ((transform.position - player.transform.position).normalized * throwBackForce));
+                }
             }
             else if (other.GetComponent<VentOpening>())
             {
-                other.GetComponent<VentOpening>().Open();
+                other.GetComponent<VentOpening>().Open(gameObject);
                 other.GetComponent<Rigidbody>().AddForce(Vector3.forward * fireForce);
             }
         }
@@ -257,6 +291,38 @@ public class Weapon : MonoBehaviour
         gameObject.GetComponent<Rigidbody>().AddForce(gameObject.transform.forward * (force/5));
     }
 
+    public void Drop(Vector3 direction, float force, float torque)
+    {
+        WeaponModeOff();
+
+        gameObject.GetComponent<Rigidbody>().AddForce(direction * force);
+        gameObject.GetComponent<Rigidbody>().AddForce(gameObject.transform.forward * (force / 5));
+
+        gameObject.GetComponent<Rigidbody>().AddTorque(transform.right * torque * 10);
+    }
+
+    public void ThrowDirection(Vector3 pos, float force)
+    {
+        WeaponModeOff();
+
+        transform.LookAt(pos);
+
+        gameObject.GetComponent<Rigidbody>().AddForce(transform.forward * force);
+        gameObject.GetComponent<Rigidbody>().AddForce(gameObject.transform.up * (force / 5));
+    }
+
+    public void ThrowDirection(Vector3 pos, float force, float torque)
+    {
+        WeaponModeOff();
+
+        transform.LookAt(pos);
+
+        gameObject.GetComponent<Rigidbody>().AddForce(transform.forward * force);
+        gameObject.GetComponent<Rigidbody>().AddForce(gameObject.transform.up * (force / 5));
+
+        gameObject.GetComponent<Rigidbody>().AddTorque(transform.right * torque * 10);
+    }
+
     public void WeaponModeOff()
     {
         if (animator)
@@ -275,7 +341,7 @@ public class Weapon : MonoBehaviour
 
     public void UpdateAmmoCounter()
     {
-        if (gameObject.activeSelf && weaponMode)
+        if (gameObject.activeSelf && weaponMode && projectile)
         {
             ammoCounter.text = "Ammo: " + ammoInClip + " / " + ammoOutClip;
         }

@@ -13,7 +13,7 @@ public class Projectile : MonoBehaviour
 
     public GameObject destroyFx;
 
-    private void Update()
+    private void FixedUpdate()
     {
         if (!gravity)
         {
@@ -23,34 +23,46 @@ public class Projectile : MonoBehaviour
 
     private void OnCollisionEnter(Collision collision)
     {
-        if (collision.collider.GetComponent<VentOpening>() && !collision.collider.GetComponent<VentOpening>().isOpened)
+        if (!gravity)
         {
-            Debug.Log("Hit Vent");
+            if (collision.collider.GetComponent<VentOpening>() && !collision.collider.GetComponent<VentOpening>().isOpened)
+            {
+                Debug.Log("Hit Vent");
 
-            collision.collider.GetComponent<VentOpening>().Open();
+                collision.collider.GetComponent<VentOpening>().Open(gameObject);
 
-            ProjectileHit(collision.gameObject);
-        }
-        else if (!gravity)
-        {
-            Debug.Log("Hit Collider");
+                ProjectileHit(collision.gameObject);
+            }
+            else if (collision.collider.GetComponent<PlayerHealth>())
+            {
+                collision.collider.GetComponent<PlayerHealth>().TakeDamage(bulletDamage);
 
-            gravity = true;
+                ProjectileHit(collision.gameObject);
+            }
+            else if (!gravity)
+            {
+                Debug.Log("Hit Collider");
 
-            gameObject.GetComponent<Rigidbody>().useGravity = true;
+                gravity = true;
+
+                gameObject.GetComponent<Rigidbody>().useGravity = true;
+            }
         }
     }
 
     private void OnTriggerEnter(Collider other)
     {
-        if (other.GetComponent<RobotCollisionBox>() && pierceCount > 0)
+        if (!gravity)
         {
-            other.GetComponent<RobotCollisionBox>().robotParent.GetComponent<RobotAI>().TakeDamage(bulletDamage);
-            other.GetComponent<RobotCollisionBox>().BreakOff();
+            if (other.GetComponent<RobotCollisionBox>() && pierceCount > 0)
+            {
+                other.GetComponent<RobotCollisionBox>().robotParent.GetComponent<RobotAI>().TakeDamage(bulletDamage);
+                other.GetComponent<RobotCollisionBox>().BreakOff();
 
-            Debug.Log("Hit Robot 2");
+                Debug.Log("Hit Robot 2");
 
-            ProjectileHit(other.gameObject);
+                ProjectileHit(other.gameObject);
+            }
         }
     }
 

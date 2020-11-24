@@ -184,6 +184,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   health: 5
+  playerHitCooldown: 1
+  ppVolume: {fileID: 0}
+  defultppfx: {fileID: 11400000, guid: 0d66d96da2edf0a4ba5e2bf59c54a3d1, type: 2}
+  deathppfx: {fileID: 11400000, guid: fcd185256174a664a90ac305f110acbc, type: 2}
+  deathMenu: {fileID: 0}
+  playerCam: {fileID: 0}
+  hUDColorAnimator: {fileID: 0}
+  healthText: {fileID: 0}
 --- !u!114 &3622435293585099692
 MonoBehaviour:
   m_ObjectHideFlags: 0

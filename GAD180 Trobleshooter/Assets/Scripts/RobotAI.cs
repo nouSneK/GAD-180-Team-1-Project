@@ -11,9 +11,11 @@ public class RobotAI : MonoBehaviour
     public int assultRifleBurstNumber = 4;
     public int currentAssultRifleBurstNumber;
     private int weaponType = 0;
+    private int targetLocationIndex = 0;
 
     public float turningSpeed = 3;
     public float movementSpeed = 3.5f;
+    public float walkingMovementSpeed = 1.5f;
     public float attackRate = 2;
     public float meleeRange = 2;
     public float meleeAttackRange = 2;
@@ -26,6 +28,7 @@ public class RobotAI : MonoBehaviour
     private bool meleeWeapon;
     private bool meleeAttack;
     private bool hasSightOfTarget;
+    private bool hasSetWanderPoints;
 
     public string runningAnimation;
     public string aimAnimation;
@@ -34,12 +37,19 @@ public class RobotAI : MonoBehaviour
     public GameObject startingWeapon;
     public GameObject weapon;
     public GameObject weaponHand;
+    public GameObject visionTrigger;
+    public GameObject visionRaycaster;
     //public GameObject[] meleeHitBoxes;
     private GameObject weaponProjectile;
+    private GameObject player;
 
     private NavMeshAgent navMesh;
 
     private Animator animator;
+
+    //Wandering Path
+    public bool hasWanderingPath;
+    public List<GameObject> wanderPoints;
 
     void Start()
     {
@@ -54,6 +64,8 @@ public class RobotAI : MonoBehaviour
         {
             animator = gameObject.GetComponent<Animator>();
         }
+
+        player = GameObject.Find("Player");
 
         SetStartingWeapon();
     }
@@ -87,7 +99,7 @@ public class RobotAI : MonoBehaviour
 
                 if (Physics.SphereCast(weapon.GetComponent<Weapon>().shootPoint.transform.position, 0.1f, weapon.GetComponent<Weapon>().shootPoint.transform.forward, out hit, 1000))
                 {
-                    Debug.DrawLine(weapon.GetComponent<Weapon>().shootPoint.transform.position, hit.point);
+                    Debug.DrawLine(weapon.GetComponent<Weapon>().shootPoint.transform.position, hit.point, Color.red);
 
                     if (hit.collider.gameObject == target)
                     {
@@ -106,7 +118,7 @@ public class RobotAI : MonoBehaviour
     {
         target = GameObject.Find("Player");
 
-        Invoke("Trigger", 0.5f);
+        Invoke("Trigger", 0.1f);
     }
 
     public void Trigger()
@@ -114,6 +126,8 @@ public class RobotAI : MonoBehaviour
         isTriggered = true;
 
         animator.SetBool("isTriggered", true);
+
+        visionTrigger.SetActive(false);
 
         if (weapon)
         {
@@ -129,17 +143,50 @@ public class RobotAI : MonoBehaviour
             {
                 meleeWeapon = true;
 
-                animator.Play(runningAnimation);
+                animator.SetBool("meleeAttack", false);
+                animator.SetBool("isRunning", true);
+
+                //animator.Play(runningAnimation);
             }
         }
         else
         {
             meleeWeapon = true;
 
-            animator.Play(runningAnimation);
+            animator.SetBool("meleeAttack", false);
+            animator.SetBool("isRunning", true);
+
+            //animator.Play(runningAnimation);
+        }
+
+        navMesh.speed = movementSpeed;
+
+        GameObject[] robots = GameObject.FindGameObjectsWithTag("Enemy");
+        foreach(GameObject robot in robots)
+        {
+            if (robot.GetComponent<RobotAI>() && !robot.GetComponent<RobotAI>().isTriggered)
+            {
+                robot.GetComponent<RobotAI>().PlayerTrigger();
+            }
         }
 
         //animator.SetBool("isTriggered", true);
+    }
+
+    public void LookForPlayer()
+    {
+        RaycastHit hit;
+
+        visionRaycaster.transform.LookAt(player.transform);
+
+        if (!isTriggered && Physics.SphereCast(visionRaycaster.transform.position, 0.5f, visionRaycaster.transform.forward, out hit, 400))
+        {
+            Debug.DrawLine(transform.position, hit.point, Color.red);
+            if(hit.collider.gameObject == GameObject.Find("Player"))
+            {
+                PlayerTrigger();
+            }
+        }
     }
 
     void Attacking()
@@ -174,6 +221,7 @@ public class RobotAI : MonoBehaviour
                     Invoke("TurnOffMeleeHitBoxes", meleeAttackTime);
                     */
 
+                    Debug.Log("isRunning = false");
                     animator.SetBool("isRunning", false);
                     animator.SetBool("meleeAttack", true);
 
@@ -243,11 +291,12 @@ public class RobotAI : MonoBehaviour
                 if(navMesh.speed == 0)
                 {
                     navMesh.speed = movementSpeed;
-
-                    animator.SetBool("meleeAttack", false);
-                    animator.SetBool("isRunning", true);
                 }
 
+                animator.SetBool("meleeAttack", false);
+                animator.SetBool("isRunning", true);
+
+                if(target)
                 navMesh.SetDestination(new Vector3(target.transform.position.x, target.transform.position.y - 1, target.transform.position.z));
             }
             else
@@ -261,6 +310,40 @@ public class RobotAI : MonoBehaviour
                 {
                     weapon.GetComponent<Weapon>().shootPoint.transform.LookAt(target.transform.position);
                 }
+            }
+        }
+        else if(!isTriggered && hasWanderingPath)
+        {
+            if (!hasSetWanderPoints)
+            {
+                hasSetWanderPoints = true;
+
+                //animator.SetBool("isTriggered", true);
+
+                target = wanderPoints[targetLocationIndex];
+
+                navMesh.enabled = true;
+                navMesh.speed = walkingMovementSpeed;
+            }
+
+            navMesh.SetDestination(new Vector3(target.transform.position.x, target.transform.position.y - 1, target.transform.position.z));
+
+            if (Vector3.Distance(transform.position, target.transform.position) < 3)
+            {
+                if(targetLocationIndex < wanderPoints.Count)
+                {
+                    targetLocationIndex++;
+
+                    Debug.Log("Add Target Index");
+                }
+                else
+                {
+                    targetLocationIndex = 0;
+
+                    Debug.Log("Set Target Index to 0");
+                }
+
+                target = wanderPoints[targetLocationIndex];
             }
         }
     }

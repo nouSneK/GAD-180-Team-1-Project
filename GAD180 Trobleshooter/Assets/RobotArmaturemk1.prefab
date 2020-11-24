@@ -1,5 +1,32 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
+--- !u!64 &2572078783090450104
+MeshCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4252458815628854658}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 1
+  m_Enabled: 1
+  serializedVersion: 4
+  m_Convex: 1
+  m_CookingOptions: 30
+  m_Mesh: {fileID: 4782050321673630664, guid: ccb6540ed3103bb478663f5bf0b3754b, type: 3}
+--- !u!114 &1013963338285131763
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4252458815628854658}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 54e6d011493207141b3cffa08b45064b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  robot: {fileID: 4311318926002829878}
 --- !u!1 &4311318925838584315
 GameObject:
   m_ObjectHideFlags: 0
@@ -354,9 +381,10 @@ GameObject:
   - component: {fileID: 4311318926002829877}
   - component: {fileID: 4311318926002829876}
   - component: {fileID: 4311318926002829879}
+  - component: {fileID: 26199589801636165}
   m_Layer: 13
   m_Name: RobotArmaturemk1
-  m_TagString: Untagged
+  m_TagString: Enemy
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -426,8 +454,11 @@ MonoBehaviour:
   - {fileID: 4311318926297982869}
   - {fileID: 4311318926000820328}
   health: 1
+  assultRifleBurstNumber: 4
+  currentAssultRifleBurstNumber: 0
   turningSpeed: 3
   movementSpeed: 3.5
+  walkingMovementSpeed: 1.5
   attackRate: 1
   meleeRange: 2
   meleeAttackRange: 2
@@ -441,6 +472,10 @@ MonoBehaviour:
   startingWeapon: {fileID: 0}
   weapon: {fileID: 0}
   weaponHand: {fileID: 4311318926890624994}
+  visionTrigger: {fileID: 4252458815628854658}
+  visionRaycaster: {fileID: 7867470058289268105}
+  hasWanderingPath: 0
+  wanderPoints: []
 --- !u!195 &4311318926002829879
 NavMeshAgent:
   m_ObjectHideFlags: 0
@@ -463,6 +498,19 @@ NavMeshAgent:
   m_BaseOffset: 19.7
   m_WalkableMask: 4294967295
   m_ObstacleAvoidanceType: 4
+--- !u!65 &26199589801636165
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4311318926002829878}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 1
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Size: {x: 1, y: 1, z: 1}
+  m_Center: {x: 0, y: 0, z: 0}
 --- !u!1 &4311318926010040469
 GameObject:
   m_ObjectHideFlags: 0
@@ -3070,6 +3118,8 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 4311318927804443339}
+  - {fileID: 2233722039433892572}
+  - {fileID: 3479053182292270904}
   m_Father: {fileID: 4311318927539515781}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -3701,7 +3751,7 @@ GameObject:
   - component: {fileID: 1427587914099463763}
   - component: {fileID: 7570481577994654618}
   - component: {fileID: 4050335243309005418}
-  m_Layer: 13
+  m_Layer: 0
   m_Name: RobotMeleeAttackCollisionBox
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -3795,3 +3845,134 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   damage: 1
+--- !u!1 &7867470058289268105
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2233722039433892572}
+  m_Layer: 0
+  m_Name: RobotVisionRaycaster
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &2233722039433892572
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7867470058289268105}
+  m_LocalRotation: {x: 0.000000026712883, y: 0.0000000061479, z: -0, w: 1}
+  m_LocalPosition: {x: -0, y: 0.0355, z: -0.0102}
+  m_LocalScale: {x: 3, y: 3, z: 3}
+  m_Children: []
+  m_Father: {fileID: 4311318927551735775}
+  m_RootOrder: 1
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1001 &4017964113669159123
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    m_TransformParent: {fileID: 4311318927551735775}
+    m_Modifications:
+    - target: {fileID: -8679921383154817045, guid: ccb6540ed3103bb478663f5bf0b3754b,
+        type: 3}
+      propertyPath: m_LocalPosition.x
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: ccb6540ed3103bb478663f5bf0b3754b,
+        type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0.0324
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: ccb6540ed3103bb478663f5bf0b3754b,
+        type: 3}
+      propertyPath: m_LocalPosition.z
+      value: -0.0102
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: ccb6540ed3103bb478663f5bf0b3754b,
+        type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: ccb6540ed3103bb478663f5bf0b3754b,
+        type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: ccb6540ed3103bb478663f5bf0b3754b,
+        type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: ccb6540ed3103bb478663f5bf0b3754b,
+        type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: ccb6540ed3103bb478663f5bf0b3754b,
+        type: 3}
+      propertyPath: m_RootOrder
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: ccb6540ed3103bb478663f5bf0b3754b,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: ccb6540ed3103bb478663f5bf0b3754b,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: ccb6540ed3103bb478663f5bf0b3754b,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: ccb6540ed3103bb478663f5bf0b3754b,
+        type: 3}
+      propertyPath: m_LocalScale.x
+      value: 3.7161002
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: ccb6540ed3103bb478663f5bf0b3754b,
+        type: 3}
+      propertyPath: m_LocalScale.y
+      value: 4.3566003
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: ccb6540ed3103bb478663f5bf0b3754b,
+        type: 3}
+      propertyPath: m_LocalScale.z
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: -7511558181221131132, guid: ccb6540ed3103bb478663f5bf0b3754b,
+        type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: ccb6540ed3103bb478663f5bf0b3754b,
+        type: 3}
+      propertyPath: m_Name
+      value: RobotVisionCollision
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: ccb6540ed3103bb478663f5bf0b3754b, type: 3}
+--- !u!4 &3479053182292270904 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: ccb6540ed3103bb478663f5bf0b3754b,
+    type: 3}
+  m_PrefabInstance: {fileID: 4017964113669159123}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1 &4252458815628854658 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 919132149155446097, guid: ccb6540ed3103bb478663f5bf0b3754b,
+    type: 3}
+  m_PrefabInstance: {fileID: 4017964113669159123}
+  m_PrefabAsset: {fileID: 0}

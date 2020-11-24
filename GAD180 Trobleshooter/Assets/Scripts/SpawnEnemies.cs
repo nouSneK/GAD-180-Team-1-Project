@@ -9,8 +9,13 @@ public class SpawnEnemies : MonoBehaviour
 
     public Transform[] spawnPoints;
 
+    public GameObject[] destroyBounds;
+    public GameObject[] wanderingPaths;
+
     public bool spawnTriggered;
     private bool hasSpawned;
+
+    public GameObject openDoor;
 
     private void OnTriggerEnter(Collider other)
     {
@@ -39,6 +44,22 @@ public class SpawnEnemies : MonoBehaviour
                     {
                         enemy.GetComponent<RobotAI>().PlayerTrigger();
                     }
+
+                    if (wanderingPaths.Length > 0 && wanderingPaths[i] != null)
+                    {
+                        enemy.GetComponent<RobotAI>().hasWanderingPath = true;
+                        enemy.GetComponent<RobotAI>().wanderPoints.Add(wanderingPaths[i]);
+
+                        for(int child = 0; child < wanderingPaths[i].transform.childCount; child++)
+                        {
+                            enemy.GetComponent<RobotAI>().wanderPoints.Add(wanderingPaths[i].transform.GetChild(child).gameObject);
+                        }
+                    }
+
+                    if (openDoor)
+                    {
+                        openDoor.GetComponent<DoorScript>().closeObjects.Add(enemy);
+                    }
                 }
             }
         }
@@ -60,7 +81,25 @@ public class SpawnEnemies : MonoBehaviour
                         enemy.GetComponent<RobotAI>().PlayerTrigger();
                     }
                 }
+
+                if (openDoor)
+                {
+                    openDoor.GetComponent<DoorScript>().closeObjects.Add(enemy);
+                }
             }
+        }
+
+        if(destroyBounds.Length > 0)
+        {
+            foreach(GameObject bounds in destroyBounds)
+            {
+                bounds.SetActive(false);
+            }
+        }
+
+        if (openDoor)
+        {
+            openDoor.GetComponent<DoorScript>().searchForRobts = true;
         }
 
         hasSpawned = true;
