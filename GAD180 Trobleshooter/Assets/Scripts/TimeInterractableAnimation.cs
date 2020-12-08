@@ -4,6 +4,8 @@ using UnityEngine;
 
 public class TimeInterractableAnimation : MonoBehaviour
 {
+    public bool timeOrbHit;
+
     private Animator animator;
 
     void Start()
@@ -25,5 +27,14 @@ public class TimeInterractableAnimation : MonoBehaviour
 
             Debug.Log("Orb Hit animation / " + multiplier);
         }
+
+        timeOrbHit = true;
+    }
+
+    public void TimeOrbRelease()
+    {
+        animator.speed = 1;
+
+        timeOrbHit = false;
     }
 }

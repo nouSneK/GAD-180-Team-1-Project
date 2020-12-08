@@ -11,6 +11,8 @@ public class DoorScript : MonoBehaviour
 
     public GameObject door;
 
+    private AudioSource audioSource;
+
     public List<GameObject> closeObjects;
 
     private void OnTriggerEnter(Collider other)
@@ -18,6 +20,11 @@ public class DoorScript : MonoBehaviour
         if(other.GetComponent<PlayerHealth>())
         {
             Open();
+        }
+
+        if (gameObject.GetComponent<AudioSource>())
+        {
+            audioSource = gameObject.GetComponent<AudioSource>();
         }
     }
 
@@ -42,6 +49,8 @@ public class DoorScript : MonoBehaviour
             opened = true;
 
             door.GetComponent<Animator>().SetBool("DoorOpen", true);
+
+            audioSource.Play();
         }
     }
 }

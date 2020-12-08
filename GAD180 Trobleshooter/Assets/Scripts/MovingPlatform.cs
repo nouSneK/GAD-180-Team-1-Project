@@ -14,6 +14,7 @@ public class MovingPlatform : MonoBehaviour
     private float currentDistance;
     private float timer;
 
+    public bool timeOrbHit;
     private bool positiveMovement = true;
 
     public GameObject platform;
@@ -64,6 +65,14 @@ public class MovingPlatform : MonoBehaviour
 
             Debug.Log("Orb Hit animation / " + multiplier);
         }
+
+        timeOrbHit = true;
     }
 
+    public void TimeOrbRelease()
+    {
+        time = 1;
+
+        timeOrbHit = false;
+    }
 }

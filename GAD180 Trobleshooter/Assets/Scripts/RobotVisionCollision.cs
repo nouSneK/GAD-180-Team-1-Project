@@ -10,7 +10,14 @@ public class RobotVisionCollision : MonoBehaviour
     {
         if (other.GetComponent<PlayerHealth>())
         {
-            robot.GetComponent<RobotAI>().LookForPlayer();
+            if (robot.GetComponent<RobotAI>())
+            {
+                robot.GetComponent<RobotAI>().LookForPlayer();
+            }
+            else if (robot.GetComponent<Boss1Robot>())
+            {
+                robot.GetComponent<Boss1Robot>().LookForPlayer();
+            }
         }
     }
 }

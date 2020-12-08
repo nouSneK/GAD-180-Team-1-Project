@@ -29,9 +29,16 @@ public class PlayerWeaponController : MonoBehaviour
 
     private bool hasHands;
 
+    private AudioSource audioSource;
+
     void Start()
     {
         SetStartingWeapons();
+
+        if (gameObject.GetComponent<AudioSource>())
+        {
+            audioSource = gameObject.GetComponent<AudioSource>();
+        }
     }
 
     void Update()
@@ -69,7 +76,7 @@ public class PlayerWeaponController : MonoBehaviour
 
     public void SwitchWeapon(bool up)
     {
-        Debug.Log("Switch Weapons");
+        //Debug.Log("Switch Weapons");
 
         //Scroll up or down
         if (up)
@@ -163,7 +170,7 @@ public class PlayerWeaponController : MonoBehaviour
             }
         }
 
-        Debug.Log("picked up " + weapon.name);
+        //Debug.Log("picked up " + weapon.name);
 
         weapon.transform.position = weaponPosition.position;
         weapon.transform.rotation = weaponPosition.rotation;
@@ -180,7 +187,7 @@ public class PlayerWeaponController : MonoBehaviour
 
     private void DropWeapon(GameObject weapon)
     {
-        Debug.Log("Dropped " + weapon.name);
+        //Debug.Log("Dropped " + weapon.name);
 
         //Drop Weapon
         if (weapon.GetComponent<Weapon>())
@@ -189,6 +196,11 @@ public class PlayerWeaponController : MonoBehaviour
 
             weapons.Remove(weapon);
             weapon.transform.parent = null;
+
+            if (weapon.GetComponent<Weapon>().arms)
+            {
+                weapon.GetComponent<Weapon>().arms.SetActive(false);
+            }
         }
         else if (weapon.tag == "Hands" && numberOfWeapons < maxNumberOfWeapons)
         {
@@ -215,7 +227,7 @@ public class PlayerWeaponController : MonoBehaviour
     {
         GameObject weapon = weapons[selectedWeapon];
 
-        Debug.Log("Throw " + weapon.name);
+        //Debug.Log("Throw " + weapon.name);
 
         if (weapon.GetComponent<Weapon>())
         {
@@ -236,6 +248,11 @@ public class PlayerWeaponController : MonoBehaviour
 
             weapons.Remove(weapon);
             weapon.transform.parent = null;
+
+            if (weapon.GetComponent<Weapon>().arms)
+            {
+                weapon.GetComponent<Weapon>().arms.SetActive(false);
+            }
         }
 
         if (hasHands)
@@ -266,11 +283,16 @@ public class PlayerWeaponController : MonoBehaviour
         ammoCounter.text = "";
 
         hasHands = true;
+
+        if (audioSource)
+        {
+            audioSource.Play();
+        }
     }
 
     private void SetStartingWeapons()
     {
-        Debug.Log("Set Start Weapons");
+        //Debug.Log("Set Start Weapons");
 
         for (int i = 1; i <= maxNumberOfWeapons; i++)
         {
@@ -293,7 +315,7 @@ public class PlayerWeaponController : MonoBehaviour
                     defultHands.SetActive(false);
                 }
 
-                Debug.Log(gameObject.name + "Added Hand");
+                //Debug.Log(gameObject.name + "Added Hand");
 
                 hasHands = true;
             }

@@ -2,12 +2,15 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
+using System.Linq;
 
 public class RobotAI : MonoBehaviour
 {
     public GameObject[] limbs;
 
-    public int health = 1;
+    public int enemyType = 1;
+    public int startingHealth = 1;
+    private int health = 1;
     public int assultRifleBurstNumber = 4;
     public int currentAssultRifleBurstNumber;
     private int weaponType = 0;
@@ -19,16 +22,22 @@ public class RobotAI : MonoBehaviour
     public float attackRate = 2;
     public float meleeRange = 2;
     public float meleeAttackRange = 2;
+    public float fireRange = 5;
     public float meleeAttackTime = 0.5f;
     public float dropWeaponTime = 1;
+    public float repairTime = 5;
     private float attackTimer;
+    private float behaviour = 1;
+    private float timeMultiplier = 1;
 
     public bool isAlive = true;
     public bool isTriggered;
+    public bool timeOrbHit;
     private bool meleeWeapon;
     private bool meleeAttack;
     private bool hasSightOfTarget;
     private bool hasSetWanderPoints;
+    private bool hasStartedRepairing;
 
     public string runningAnimation;
     public string aimAnimation;
@@ -39,9 +48,16 @@ public class RobotAI : MonoBehaviour
     public GameObject weaponHand;
     public GameObject visionTrigger;
     public GameObject visionRaycaster;
+    public GameObject revivedRobot;
+    public GameObject destroyFx;
     //public GameObject[] meleeHitBoxes;
     private GameObject weaponProjectile;
     private GameObject player;
+    private GameObject repairTarget;
+    private GameObject timeHands;
+    private GameObject dalekRobotModel;
+    public List<GameObject> robots;
+    private List<GameObject> possibleRobots;
 
     private NavMeshAgent navMesh;
 
@@ -50,6 +66,19 @@ public class RobotAI : MonoBehaviour
     //Wandering Path
     public bool hasWanderingPath;
     public List<GameObject> wanderPoints;
+
+    private Material defultMaterial;
+    public Material speedUpMaterial;
+    public Material slowDownMaterial;
+
+    public ParticleSystem speedUpParticles;
+    public ParticleSystem slowDownParticles;
+    public ParticleSystem reviveRobotFx;
+
+    public AudioClip deathSound;
+    public AudioClip[] otherDeathSounds;
+
+    private AudioSource audioSource;
 
     void Start()
     {
@@ -67,7 +96,26 @@ public class RobotAI : MonoBehaviour
 
         player = GameObject.Find("Player");
 
+        health = startingHealth;
+
         SetStartingWeapon();
+
+        if(enemyType == 2)
+        {
+            //SearchForRobots();
+        }
+
+        if (transform.FindChild("DalekRobotModel"))
+        {
+            dalekRobotModel = transform.FindChild("DalekRobotModel").gameObject;
+        }
+
+        if (gameObject.GetComponent<AudioSource>())
+        {
+            audioSource = gameObject.GetComponent<AudioSource>();
+        }
+
+        //defultMaterial = gameObject.GetComponent<SkinnedMeshRenderer>().material;
     }
 
     void Update()
@@ -87,15 +135,9 @@ public class RobotAI : MonoBehaviour
                 Die();
             }
 
-            if (Input.GetKeyDown(KeyCode.K))
-            {
-                animator.Play(runningAnimation);
-            }
-
             if (isTriggered && weapon && weapon.gameObject.GetComponent<Weapon>().projectile && attackTimer > 0)
             {
                 RaycastHit hit;
-                QueryTriggerInteraction qt = QueryTriggerInteraction.Ignore;
 
                 if (Physics.SphereCast(weapon.GetComponent<Weapon>().shootPoint.transform.position, 0.1f, weapon.GetComponent<Weapon>().shootPoint.transform.forward, out hit, 1000))
                 {
@@ -103,13 +145,13 @@ public class RobotAI : MonoBehaviour
 
                     if (hit.collider.gameObject == target)
                     {
-                        attackTimer -= 1 * Time.deltaTime;
+                        attackTimer -= timeMultiplier * Time.deltaTime;
                     }
                 }
             }
             else if (isTriggered && attackTimer > 0)
             {
-                attackTimer -= 1 * Time.deltaTime;
+                attackTimer -= timeMultiplier * Time.deltaTime;
             }
         }
     }
@@ -129,7 +171,7 @@ public class RobotAI : MonoBehaviour
 
         visionTrigger.SetActive(false);
 
-        if (weapon)
+        if (weapon && enemyType == 1)
         {
             if(weapon.GetComponent<Weapon>().projectile != null)
             {
@@ -145,6 +187,7 @@ public class RobotAI : MonoBehaviour
 
                 animator.SetBool("meleeAttack", false);
                 animator.SetBool("isRunning", true);
+                animator.SetBool("isWalking", false);
 
                 //animator.Play(runningAnimation);
             }
@@ -155,6 +198,7 @@ public class RobotAI : MonoBehaviour
 
             animator.SetBool("meleeAttack", false);
             animator.SetBool("isRunning", true);
+            animator.SetBool("isWalking", false);
 
             //animator.Play(runningAnimation);
         }
@@ -191,47 +235,61 @@ public class RobotAI : MonoBehaviour
 
     void Attacking()
     {
-        if (isTriggered && attackTimer < 0)
+        if (isTriggered)
         {
-            if (weapon && weapon.gameObject.GetComponent<Weapon>().projectile)
+            if (attackTimer < 0 && enemyType == 1)
             {
-                if(weaponType == 1)
+                if (weapon && weapon.gameObject.GetComponent<Weapon>().projectile)
                 {
-                    attackTimer = attackRate;
+                    if (weaponType == 1)
+                    {
+                        attackTimer = attackRate;
 
-                    AssultRifleFire();
+                        AssultRifleFire();
+                    }
+                    else
+                    {
+                        weapon.GetComponent<Weapon>().FireWeapon();
+
+                        attackTimer = attackRate;
+                    }
                 }
                 else
+                {
+                    if (Vector3.Distance(transform.position, target.transform.position) < meleeRange && !meleeAttack)
+                    {
+                        /*
+                        foreach (GameObject box in meleeHitBoxes)
+                        {
+                            box.SetActive(true);
+                        }
+
+                        Invoke("TurnOffMeleeHitBoxes", meleeAttackTime);
+                        */
+
+                        Debug.Log("isRunning = false");
+                        animator.SetBool("isRunning", false);
+                        animator.SetBool("meleeAttack", true);
+
+                        Invoke("MeleeAttackReset", meleeAttackTime);
+
+                        attackTimer = attackRate + meleeAttackTime;
+
+                        navMesh.speed = 0;
+
+                        meleeAttack = true;
+                    }
+                }
+            }
+            else if (attackTimer < 0 && enemyType == 2 && behaviour == 1)
+            {
+                if (weapon && weapon.gameObject.GetComponent<Weapon>().projectile)
                 {
                     weapon.GetComponent<Weapon>().FireWeapon();
 
                     attackTimer = attackRate;
-                }
-            }
-            else
-            {
-                if(Vector3.Distance(transform.position, target.transform.position) < meleeRange && !meleeAttack)
-                {
-                    /*
-                    foreach (GameObject box in meleeHitBoxes)
-                    {
-                        box.SetActive(true);
-                    }
 
-                    Invoke("TurnOffMeleeHitBoxes", meleeAttackTime);
-                    */
-
-                    Debug.Log("isRunning = false");
-                    animator.SetBool("isRunning", false);
-                    animator.SetBool("meleeAttack", true);
-
-                    Invoke("MeleeAttackReset", meleeAttackTime);
-
-                    attackTimer = attackRate + meleeAttackTime;
-
-                    navMesh.speed = 0;
-
-                    meleeAttack = true;
+                    CheckForDeadRobots();
                 }
             }
         }
@@ -251,7 +309,7 @@ public class RobotAI : MonoBehaviour
             }
             else
             {
-                Invoke("AssultRifleFire", 0.1f);
+                Invoke("AssultRifleFire", 0.1f / timeMultiplier);
             }
         }
     }
@@ -284,31 +342,87 @@ public class RobotAI : MonoBehaviour
 
     void Movement()
     {
-        if (isTriggered && target && !meleeAttack && Vector3.Distance(transform.position, target.transform.position) > meleeRange)
+        if (isTriggered && target && !meleeAttack)
         {
-            if (meleeWeapon)
+            if (enemyType == 1 && Vector3.Distance(transform.position, target.transform.position) > meleeRange)
             {
-                if(navMesh.speed == 0)
+                if (meleeWeapon)
                 {
-                    navMesh.speed = movementSpeed;
+                    if (navMesh.speed == 0)
+                    {
+                        navMesh.speed = movementSpeed;
+                    }
+
+                    animator.SetBool("meleeAttack", false);
+                    animator.SetBool("isRunning", true);
+
+                    if (target)
+                    {
+                        navMesh.SetDestination(new Vector3(target.transform.position.x, target.transform.position.y - 1, target.transform.position.z));
+                    }
                 }
-
-                animator.SetBool("meleeAttack", false);
-                animator.SetBool("isRunning", true);
-
-                if(target)
-                navMesh.SetDestination(new Vector3(target.transform.position.x, target.transform.position.y - 1, target.transform.position.z));
-            }
-            else
-            {
-                //transform.rotation = Quaternion.Slerp(transform.rotation, target.transform.rotation, turningSpeed);
-                Vector3 targetPos = new Vector3(target.transform.position.x, transform.position.y, target.transform.position.z);
-
-                transform.LookAt(targetPos);
-
-                if(weapon && weapon.GetComponent<Weapon>().shootPoint)
+                else
                 {
-                    weapon.GetComponent<Weapon>().shootPoint.transform.LookAt(target.transform.position);
+                    //transform.rotation = Quaternion.Slerp(transform.rotation, target.transform.rotation, turningSpeed);
+                    Vector3 targetPos = new Vector3(target.transform.position.x, transform.position.y, target.transform.position.z);
+
+                    transform.LookAt(targetPos);
+
+                    if (weapon && weapon.GetComponent<Weapon>().shootPoint)
+                    {
+                        weapon.GetComponent<Weapon>().shootPoint.transform.LookAt(target.transform.position);
+                    }
+                }
+            }
+            else if(enemyType == 2)
+            {
+                if(behaviour == 1)
+                {
+                    if (Vector3.Distance(transform.position, target.transform.position) > fireRange)
+                    {
+                        if (navMesh.speed == 0)
+                        {
+                            navMesh.speed = movementSpeed;
+                        }
+
+                        animator.SetBool("meleeAttack", false);
+                        animator.SetBool("isRunning", true);
+
+                        if (target)
+                        {
+                            navMesh.SetDestination(new Vector3(target.transform.position.x, target.transform.position.y - 1, target.transform.position.z));
+                        }
+                    }
+                    else if (Vector3.Distance(transform.position, target.transform.position) < fireRange + 1)
+                    {
+                        if(navMesh.speed != 0)
+                        {
+                            navMesh.speed = 0;
+                        }
+
+                        Vector3 targetPos = new Vector3(target.transform.position.x, transform.position.y, target.transform.position.z);
+
+                        transform.LookAt(targetPos);
+
+                    }
+
+                    if (weapon && weapon.GetComponent<Weapon>().shootPoint)
+                    {
+                        weapon.GetComponent<Weapon>().shootPoint.transform.LookAt(target.transform.position);
+                    }
+                }
+                else if(behaviour == 2)
+                {
+                    if (repairTarget && Vector3.Distance(transform.position, repairTarget.transform.position) > meleeRange)
+                    {
+                        navMesh.SetDestination(new Vector3(repairTarget.transform.position.x, repairTarget.transform.position.y - 2, repairTarget.transform.position.z));
+
+                        Debug.Log(navMesh.destination);
+                    }
+                    else if(repairTarget && Vector3.Distance(transform.position, repairTarget.transform.position) < meleeRange + 1 && !hasStartedRepairing)
+                    {
+                        StartRepair();
+                    }
                 }
             }
         }
@@ -318,7 +432,7 @@ public class RobotAI : MonoBehaviour
             {
                 hasSetWanderPoints = true;
 
-                //animator.SetBool("isTriggered", true);
+                animator.SetBool("isWalking", true);
 
                 target = wanderPoints[targetLocationIndex];
 
@@ -404,6 +518,11 @@ public class RobotAI : MonoBehaviour
         animator.enabled = false;
         navMesh.enabled = false;
 
+        if (gameObject.GetComponent<CapsuleCollider>())
+        {
+            gameObject.GetComponent<CapsuleCollider>().enabled = false;
+        }
+
         foreach (GameObject limb in limbs)
         {
             if (limb.GetComponent<Rigidbody>())
@@ -441,7 +560,7 @@ public class RobotAI : MonoBehaviour
 
     void CheckForDeath()
     {
-        if(health <= 0)
+        if(health <= 0 && isAlive)
         {
             Die();
         }
@@ -457,21 +576,199 @@ public class RobotAI : MonoBehaviour
         {
             Invoke("DropWeapon", dropWeaponTime);
         }
+
+        if (timeOrbHit)
+        {
+            timeHands.GetComponent<TimeHand>().ResetOrb(gameObject);
+        }
+
+        if(enemyType == 2)
+        {
+            dalekRobotModel.AddComponent<Rigidbody>();
+        }
+
+        if (destroyFx)
+        {
+            Instantiate(destroyFx, new Vector3(transform.position.x, transform.position.y - 0.5f, transform.position.z), Quaternion.identity);
+        }
+
+        player.GetComponent<PlayerHealth>().playerCam.GetComponent<PlayerTimeController>().AddTimeJuice();
+
+        if(audioSource)
+        {
+            if (deathSound)
+            {
+                audioSource.clip = deathSound;
+
+                audioSource.Play();
+            }
+            
+            foreach(AudioClip clip in otherDeathSounds)
+            {
+                AudioSource.PlayClipAtPoint(clip, transform.position);
+            }
+        }
     }
 
     void DropWeapon()
     {
-        weapon.GetComponent<Weapon>().enemyControlled = false;
-        weapon.GetComponent<Weapon>().shootPoint = null;
-        weapon.GetComponent<Weapon>().WeaponModeOff();
-
-        if (weapon.GetComponent<Weapon>().projectile)
+        if (weapon)
         {
-            weapon.GetComponent<Weapon>().ammoCost = 1;
+            weapon.GetComponent<Weapon>().enemyControlled = false;
+            weapon.GetComponent<Weapon>().shootPoint = null;
+            weapon.GetComponent<Weapon>().WeaponModeOff();
+
+            if (weapon.GetComponent<Weapon>().projectile)
+            {
+                weapon.GetComponent<Weapon>().ammoCost = 1;
+            }
+
+            weapon.transform.parent = null;
+
+            weapon = null;
+        }
+    }
+
+    void SearchForRobots()
+    {
+        robots = new List<GameObject>();
+        robots = GameObject.FindGameObjectsWithTag("Enemy").ToList();
+
+        foreach (GameObject robot in robots)
+        {
+            /*
+            navMesh.SetDestination(new Vector3(robot.transform.position.x, robot.transform.position.y - 1, robot.transform.position.z));
+            NavMeshPath path = new NavMeshPath();
+            navMesh.CalculatePath(new Vector3(robot.transform.position.x, robot.transform.position.y - 1, robot.transform.position.z), path);
+            
+            if(robot.GetComponent<RobotAI>().enemyType == 2)
+            {
+                return;
+            }
+            
+
+            if (path.status != NavMeshPathStatus.PathPartial)
+            {
+                robots.Add(robot);
+
+                Debug.Log("Add " + robot.name + " to list");
+            }
+            */
+
+            if (!robot.GetComponent<RobotAI>().isAlive || robot.GetComponent<RobotAI>().enemyType == 2)
+            {
+                robots.Remove(robot);
+
+                Debug.Log("Remove " + robot.name + " to list");
+            }
+        }
+    }
+
+    void CheckForDeadRobots()
+    {
+        foreach (GameObject robot in robots)
+        {
+            if (robot.GetComponent<RobotAI>() && !robot.GetComponent<RobotAI>().isAlive && robot.GetComponent<RobotAI>().enemyType == 1 && robot.GetComponent<RobotAI>().startingHealth == 1)
+            {
+                repairTarget = robot;
+
+                behaviour = 2;
+
+                return;
+            }
+        }
+    }
+
+    void StartRepair()
+    {
+        hasStartedRepairing = true;
+
+        Invoke("FinishRepair", repairTime);
+
+        if (reviveRobotFx)
+        {
+            reviveRobotFx.Play();
+        }
+    }
+
+    void FinishRepair()
+    {
+        if (isAlive && repairTarget)
+        {
+            GameObject newRobot = Instantiate(revivedRobot, repairTarget.transform.position, repairTarget.transform.rotation);
+            newRobot.GetComponent<RobotAI>().PlayerTrigger();
+
+            robots.Remove(repairTarget);
+            robots.Add(newRobot);
+
+            Destroy(repairTarget);
+
+            repairTarget = null;
+
+            behaviour = 1;
+
+            hasStartedRepairing = false;
         }
 
-        weapon.transform.parent = null;
+        if (reviveRobotFx)
+        {
+            reviveRobotFx.Stop();
+        }
+    }
 
-        weapon = null;
+    public void TimeOrbHit(int type, float multiplier, GameObject hands)
+    {
+        if(type == 0)
+        {
+            navMesh.speed = navMesh.speed * multiplier;
+
+            animator.speed = animator.speed * multiplier;
+
+            timeMultiplier = timeMultiplier * multiplier;
+
+            if(speedUpParticles && slowDownParticles)
+            {
+                speedUpParticles.Play();
+                slowDownParticles.Stop();
+            }
+
+            //gameObject.GetComponent<SkinnedMeshRenderer>().material = speedUpMaterial;
+        }
+        else if(type == 1)
+        {
+            navMesh.speed = navMesh.speed / (3 * multiplier);
+            animator.speed = animator.speed / (3 * multiplier);
+
+            timeMultiplier = timeMultiplier / (multiplier);
+
+            if (speedUpParticles && slowDownParticles)
+            {
+                slowDownParticles.Play();
+                speedUpParticles.Stop();
+            }
+            
+            //gameObject.GetComponent<SkinnedMeshRenderer>().material = slowDownMaterial;
+        }
+
+        timeHands = hands;
+
+        timeOrbHit = true;
+    }
+
+    public void TimeOrbRelease()
+    {
+        navMesh.speed = movementSpeed;
+        animator.speed = 1;
+        timeMultiplier = 1;
+
+        timeOrbHit = false;
+
+        if (speedUpParticles && slowDownParticles)
+        {
+            speedUpParticles.Stop();
+            slowDownParticles.Stop();
+        }
+            
+        //gameObject.GetComponent<SkinnedMeshRenderer>().material = defultMaterial;
     }
 }

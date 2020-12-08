@@ -12,10 +12,17 @@ public class SpawnEnemies : MonoBehaviour
     public GameObject[] destroyBounds;
     public GameObject[] wanderingPaths;
 
+    private List<GameObject> spawnedRobots;
+
     public bool spawnTriggered;
     private bool hasSpawned;
 
-    public GameObject openDoor;
+    private GameObject[] openDoor;
+
+    private void Start()
+    {
+        openDoor = GameObject.FindGameObjectsWithTag("Door");
+    }
 
     private void OnTriggerEnter(Collider other)
     {
@@ -27,6 +34,8 @@ public class SpawnEnemies : MonoBehaviour
 
     public void Spawn()
     {
+        spawnedRobots = new List<GameObject>();
+
         if (enemies.Length > 1)
         {
             for(int i = 0; i < enemies.Length; i++)
@@ -56,10 +65,12 @@ public class SpawnEnemies : MonoBehaviour
                         }
                     }
 
-                    if (openDoor)
+                    foreach (GameObject door in openDoor)
                     {
-                        openDoor.GetComponent<DoorScript>().closeObjects.Add(enemy);
+                        door.GetComponent<DoorScript>().closeObjects.Add(enemy);
                     }
+
+                    spawnedRobots.Add(enemy);
                 }
             }
         }
@@ -82,10 +93,12 @@ public class SpawnEnemies : MonoBehaviour
                     }
                 }
 
-                if (openDoor)
+                foreach(GameObject door in openDoor)
                 {
-                    openDoor.GetComponent<DoorScript>().closeObjects.Add(enemy);
+                    door.GetComponent<DoorScript>().closeObjects.Add(enemy);
                 }
+
+                spawnedRobots.Add(enemy);
             }
         }
 
@@ -97,11 +110,30 @@ public class SpawnEnemies : MonoBehaviour
             }
         }
 
-        if (openDoor)
+        foreach (GameObject door in openDoor)
         {
-            openDoor.GetComponent<DoorScript>().searchForRobts = true;
+            door.GetComponent<DoorScript>().searchForRobts = true;
         }
 
+        CheckForReviveRobot();
+
         hasSpawned = true;
+    }
+
+    void CheckForReviveRobot()
+    {
+        foreach (GameObject robot in spawnedRobots)
+        {
+            if (robot.GetComponent<RobotAI>() && robot.GetComponent<RobotAI>().enemyType == 2)
+            {
+                foreach(GameObject otherRobot in spawnedRobots)
+                {
+                    if(otherRobot.GetComponent<RobotAI>() && otherRobot.GetComponent<RobotAI>().enemyType != 2)
+                    {
+                        robot.GetComponent<RobotAI>().robots.Add(otherRobot);
+                    }
+                }
+            }
+        }
     }
 }

@@ -11,6 +11,7 @@ public class LaunchPlatform : MonoBehaviour
     private float currentLaunchForce;
 
     private bool canLaunch = true;
+    public bool timeOrbHit;
 
     void Start()
     {
@@ -22,6 +23,22 @@ public class LaunchPlatform : MonoBehaviour
         
     }
 
+
+    private void OnTriggerEnter(Collider other)
+    {
+        if (other.gameObject.GetComponent<Rigidbody>() && canLaunch)
+        {
+            //collision.gameObject.transform.position = new Vector3(collision.gameObject.transform.position.x, collision.gameObject.transform.position.y + 10, collision.gameObject.transform.position.z);
+
+            other.gameObject.GetComponent<Rigidbody>().AddForce(transform.up * currentLaunchForce);
+
+            canLaunch = false;
+
+            Invoke("CoolDown", coolDown);
+        }
+    }
+
+    /*
     private void OnCollisionEnter(Collision collision)
     {
         if (collision.gameObject.GetComponent<Rigidbody>() && canLaunch)
@@ -35,6 +52,7 @@ public class LaunchPlatform : MonoBehaviour
             Invoke("CoolDown", coolDown);
         }
     }
+    */
 
     public void ChangeLaunchForce(int orbType)
     {
@@ -46,6 +64,15 @@ public class LaunchPlatform : MonoBehaviour
         {
             currentLaunchForce = slowDownLaunchForce;
         }
+
+        timeOrbHit = true;
+    }
+
+    public void TimeOrbRelease()
+    {
+        currentLaunchForce = normalLaunchForce;
+
+        timeOrbHit = false;
     }
 
     void CoolDown()

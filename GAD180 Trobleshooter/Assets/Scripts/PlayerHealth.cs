@@ -18,10 +18,12 @@ public class PlayerHealth : MonoBehaviour
     public PostProcessProfile defultppfx;
     public PostProcessProfile deathppfx;
 
-    public GameObject deathMenu;
     public GameObject playerCam;
+    public GameObject levelManager;
 
     public Animator hUDColorAnimator;
+
+    private AudioSource audioSource;
 
     public TMP_Text healthText;
 
@@ -30,6 +32,11 @@ public class PlayerHealth : MonoBehaviour
         startingHealth = health;
 
         DisplayHealth();
+
+        if (gameObject.GetComponent<AudioSource>())
+        {
+            audioSource = gameObject.GetComponent<AudioSource>();
+        }
     }
 
     public void TakeDamage(int damage)
@@ -51,6 +58,11 @@ public class PlayerHealth : MonoBehaviour
             if (hUDColorAnimator)
             {
                 hUDColorAnimator.Play("PlayerHitRedFx");
+            }
+
+            if (audioSource)
+            {
+                audioSource.Play();
             }
         }
     }
@@ -99,10 +111,13 @@ public class PlayerHealth : MonoBehaviour
 
     void Die()
     {
-        Time.timeScale = 0;
-        deathMenu.SetActive(true);
-
-        Cursor.lockState = CursorLockMode.None;
-        Cursor.visible = true;
+        if (levelManager)
+        {
+            levelManager.GetComponent<LevelManager>().PlayerDeath();
+        }
+        else
+        {
+            Debug.Log("Need to assign Level Manager!!!");
+        }
     }
 }

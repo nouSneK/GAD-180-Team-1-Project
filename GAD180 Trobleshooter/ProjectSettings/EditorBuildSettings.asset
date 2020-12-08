@@ -6,9 +6,18 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
-    path: Assets/Scenes/Level 2.unity
-    guid: 70114d194b8918c43ac8d35e182d20db
-  - enabled: 0
+    path: Assets/Scenes/Trouble Shooter Menu.unity
+    guid: 65d0407eeb100d84fb1b247c96b183d0
+  - enabled: 1
+    path: Assets/Scenes/MainMenu.unity
+    guid: 5dade87afe8290b42a8d460428c17202
+  - enabled: 1
     path: Assets/Scenes/Level 1.unity
     guid: cd9529d24c0165644aaebdd8011492d3
+  - enabled: 1
+    path: Assets/Scenes/Level 2.unity
+    guid: 70114d194b8918c43ac8d35e182d20db
+  - enabled: 1
+    path: Assets/Scenes/level design.unity
+    guid: f9e5a05bc32685a4fb3832b2dd4135c1
   m_configObjects: {}

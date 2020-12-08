@@ -7,9 +7,18 @@ public class SceneSelectButton : MonoBehaviour
 
     public bool lockCursor = true;
 
+    public bool restartButton = true;
+
+    private Scene currentScene;
+
+    private void Start()
+    {
+        currentScene = SceneManager.GetActiveScene();
+    }
+
     private void Update()
     {
-        if (Input.GetKeyDown(KeyCode.R))
+        if ((restartButton && Input.GetKeyDown(KeyCode.R)) || (!restartButton && Input.GetKeyDown(KeyCode.M)))
         {
             ButtonClick();
         }
@@ -20,6 +29,7 @@ public class SceneSelectButton : MonoBehaviour
         Debug.Log("Change scene to " + scene);
 
         SceneManager.LoadScene(scene);
+        SceneManager.UnloadScene(currentScene);
 
         if(Time.timeScale == 0)
         {

@@ -9,7 +9,9 @@ public class Weapon : MonoBehaviour
     public bool enemyControlled = false;
     private bool canShoot = true;
     private bool meleeAttack;
+    private bool isWalking;
     public bool weaponThrown;
+    public bool isReloading;
     public bool mouseHold;
 
     public int bulletsPerShot = 1;
@@ -41,6 +43,7 @@ public class Weapon : MonoBehaviour
     public GameObject projectile;
     public GameObject shootPoint;
     public GameObject muzzleFlashPoint;
+    public GameObject arms;
     private GameObject player;
 
     private Rigidbody rb;
@@ -48,6 +51,11 @@ public class Weapon : MonoBehaviour
     public Text ammoCounter;
 
     private Animator animator;
+
+    public AudioClip shootSound;
+    public AudioClip reloadSound;
+
+    private AudioSource audioSource;
 
     private void Awake()
     {
@@ -59,6 +67,11 @@ public class Weapon : MonoBehaviour
         }
 
         player = GameObject.Find("Player");
+
+        if (gameObject.GetComponent<AudioSource>())
+        {
+            audioSource = gameObject.GetComponent<AudioSource>();
+        }
     }
 
     void Start()
@@ -87,7 +100,7 @@ public class Weapon : MonoBehaviour
 
     void Update()
     {
-        if (weaponMode && !enemyControlled)
+        if (weaponMode && !enemyControlled && !isReloading)
         {
             if (!mouseHold && Input.GetMouseButtonDown(0) && ammoInClip > 0 && canShoot)
             {
@@ -113,6 +126,19 @@ public class Weapon : MonoBehaviour
             meleeAttack = false;
 
             weaponThrown = false;
+        }
+
+        if((Input.GetKey(KeyCode.W) || Input.GetKey(KeyCode.A) || Input.GetKey(KeyCode.S) || Input.GetKey(KeyCode.D)) && !isWalking)
+        {
+            isWalking = true;
+
+            animator.SetBool("isWalking", true);
+        }
+        else if (!(Input.GetKey(KeyCode.W) || Input.GetKey(KeyCode.A) || Input.GetKey(KeyCode.S) || Input.GetKey(KeyCode.D)) && isWalking)
+        {
+            isWalking = false;
+
+            animator.SetBool("isWalking", false);
         }
     }
 
@@ -154,14 +180,22 @@ public class Weapon : MonoBehaviour
                 gameObject.GetComponent<BoxCollider>().isTrigger = true;
                 gameObject.GetComponent<BoxCollider>().enabled = true;
 
-                animator.Play(attackAnimation);
+                if (animator)
+                {
+                    animator.Play(attackAnimation);
+                }
 
                 Invoke("MeleeReset", meleeTime);
             }
         }
 
+        if (animator && !meleeAttack)
+        {
+            animator.SetBool("shoot", true);
+        }
+
         ammoInClip -= ammoCost;
-        if(ammoInClip <= 0)
+        if(ammoInClip <= 0 && ammoOutClip > 0)
         {
             Reload();
         }
@@ -173,6 +207,13 @@ public class Weapon : MonoBehaviour
         if (!enemyControlled)
         {
             UpdateAmmoCounter();
+        }
+
+        if (shootSound && audioSource)
+        {
+            audioSource.clip = shootSound;
+
+            audioSource.Play();
         }
     }
 
@@ -228,18 +269,41 @@ public class Weapon : MonoBehaviour
 
     private void FireRateReset()
     {
+        if (animator)
+        {
+            animator.SetBool("shoot", false);
+        }
+
         canShoot = true;
     }
 
     private void Reload()
     {
-        //Play reload animation
+        isReloading = true;
+
+        if (animator)
+        {
+            animator.SetBool("isReloading", true);
+        }
+        if (reloadSound && audioSource)
+        {
+            audioSource.clip = reloadSound;
+
+            audioSource.Play();
+        }
 
         Invoke("FinishReloading", reloadTime);
     }
 
     private void FinishReloading()
     {
+        isReloading = false;
+
+        if (animator)
+        {
+            animator.SetBool("isReloading", false);
+        }
+
         ammoOutClip += ammoInClip;
         ammoInClip = 0;
 
@@ -274,6 +338,8 @@ public class Weapon : MonoBehaviour
         if (animator)
         {
             animator.enabled = true;
+
+            animator.SetBool("playerControlled", true);
         }
 
         gameObject.GetComponent<Rigidbody>().isKinematic = true;
@@ -327,6 +393,8 @@ public class Weapon : MonoBehaviour
     {
         if (animator)
         {
+            animator.SetBool("playerControlled", false);
+
             animator.enabled = false;
         }
 
