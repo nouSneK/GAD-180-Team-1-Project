@@ -105,9 +105,9 @@ public class RobotAI : MonoBehaviour
             //SearchForRobots();
         }
 
-        if (transform.FindChild("DalekRobotModel"))
+        if (transform.Find("DalekRobotModel"))
         {
-            dalekRobotModel = transform.FindChild("DalekRobotModel").gameObject;
+            dalekRobotModel = transform.Find("DalekRobotModel").gameObject;
         }
 
         if (gameObject.GetComponent<AudioSource>())
